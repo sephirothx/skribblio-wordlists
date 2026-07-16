@@ -116,9 +116,13 @@ searchInput.addEventListener("input", () => {
   renderCategories(searchInput.value);
 });
 
-function showResult(entries: string[]) {
+function showResult(entries: string[], removedForLength: number) {
   resultSection.hidden = false;
-  resultCountEl.textContent = `${entries.length} unique word${entries.length === 1 ? "" : "s"}`;
+  let countText = `${entries.length} unique word${entries.length === 1 ? "" : "s"}`;
+  if (removedForLength > 0) {
+    countText += ` (dropped ${removedForLength} at random to stay under skribbl.io's 20,000-character limit)`;
+  }
+  resultCountEl.textContent = countText;
   resultTextEl.value = entries.join(",");
   copyFeedback.textContent = "";
   resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -137,7 +141,8 @@ mergeBtn.addEventListener("click", async () => {
         return parseEntries(text);
       }),
     );
-    showResult(mergeLists(entryLists));
+    const { entries, removedForLength } = mergeLists(entryLists);
+    showResult(entries, removedForLength);
   } catch (error) {
     console.error(error);
     alert("Something went wrong merging the selected lists. Please try again.");
