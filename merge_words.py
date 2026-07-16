@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Merge comma-separated word lists: dedupe entries and drop any containing an apostrophe."""
+"""Merge comma-separated word lists: dedupe entries, drop any containing an apostrophe, and drop entries longer than 32 characters."""
 
 import argparse
+
+MAX_LENGTH = 32
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("input_files", nargs="+", help="Input files to merge")
@@ -19,6 +21,8 @@ for path in args.input_files:
         if not word:
             continue
         if "'" in word:
+            continue
+        if len(word) > MAX_LENGTH:
             continue
         if word not in seen:
             seen.add(word)

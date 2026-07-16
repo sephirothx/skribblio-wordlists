@@ -8,8 +8,8 @@ This repository collects word lists for use as custom word packs in the
 ### `merge_words.py`
 
 Merges one or more comma-separated word list files into a single output
-file, removing duplicate entries and dropping any word containing an
-apostrophe.
+file, removing duplicate entries and dropping any entry containing an
+apostrophe or longer than 32 characters.
 
 ```sh
 python3 merge_words.py italian/italian.txt italian/italian-2.txt -o italian/italian-merged.txt
@@ -21,8 +21,9 @@ python3 merge_words.py italian/italian.txt italian/italian-2.txt -o italian/ital
 ### `sanitize_list.py`
 
 Sanitizes a single comma-separated word list file by removing duplicate
-entries and entries containing an apostrophe. Overwrites the input file
-in place by default, or writes to a separate file if `-o` is given.
+entries, entries containing an apostrophe, and entries longer than 32
+characters. Overwrites the input file in place by default, or writes to
+a separate file if `-o` is given.
 
 ```sh
 python3 sanitize_list.py english/english-merged.txt
@@ -34,8 +35,9 @@ python3 sanitize_list.py english/english-merged.txt
 ### `validate_lists.py`
 
 Validates one or more comma-separated word list files, checking for
-duplicate entries and entries containing an apostrophe. Exits with a
-non-zero status and prints the offending entries if any issues are found.
+duplicate entries, entries containing an apostrophe, and entries longer
+than 32 characters. Exits with a non-zero status and prints the
+offending entries if any issues are found.
 
 ```sh
 python3 validate_lists.py italian/italian-merged.txt

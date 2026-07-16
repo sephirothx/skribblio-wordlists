@@ -2,8 +2,6 @@ name: Validate word lists
 
 on:
   pull_request:
-    paths:
-      - "**/*.txt"
 
 jobs:
   validate:
