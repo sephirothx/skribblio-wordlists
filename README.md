@@ -54,3 +54,29 @@ python3 scripts/validate_lists.py lists/italian/italian-merged.txt
 This check also runs automatically as a GitHub Actions workflow
 (`.github/workflows/validate-word-lists.yml`) against any `.txt` files
 changed in a pull request.
+
+## Website
+
+`web/` is a small static site that lets you pick one or more word lists,
+merge them in the browser, and copy or download the result — no need to
+run the Python scripts locally. It's built with Vite + vanilla
+TypeScript and automatically picks up every list under `lists/` (no
+manual configuration needed when new lists are added).
+
+Live site: https://sephirothx.github.io/skribblio-wordlists/
+
+Deployed automatically via `.github/workflows/deploy-site.yml` on every
+push to `main` (requires GitHub Pages to be enabled with source set to
+"GitHub Actions" in the repo settings).
+
+### Local development
+
+```sh
+cd web
+npm install
+npm run dev
+```
+
+`npm run build` produces a production build in `web/dist`, regenerating
+`web/public/manifest.json` and `web/public/lists/` from the current
+contents of `lists/` first.
