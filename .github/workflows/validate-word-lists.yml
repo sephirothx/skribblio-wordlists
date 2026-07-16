@@ -30,4 +30,4 @@ jobs:
       - name: Validate changed word list files
         if: steps.changed-files.outputs.files != ''
         run: |
-          echo "${{ steps.changed-files.outputs.files }}" | xargs -r python3 validate_lists.py
+          echo "${{ steps.changed-files.outputs.files }}" | xargs -r python3 scripts/validate_lists.py

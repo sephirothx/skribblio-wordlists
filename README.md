@@ -3,6 +3,14 @@
 This repository collects word lists for use as custom word packs in the
 [skribbl.io](https://skribbl.io) drawing game, organized by language.
 
+## Structure
+
+- `lists/` — word list categories (e.g. `english/`, `italian/`,
+  `videogames/`), each containing comma-separated `.txt` word list files.
+- `scripts/` — Python CLI tools for merging, sanitizing, and validating
+  word lists (see below).
+- `web/` — the word list merger website (see its section below).
+
 ## Scripts
 
 ### `merge_words.py`
@@ -12,7 +20,7 @@ file, removing duplicate entries and dropping any entry containing an
 apostrophe or longer than 32 characters.
 
 ```sh
-python3 merge_words.py italian/italian.txt italian/italian-2.txt -o italian/italian-merged.txt
+python3 scripts/merge_words.py lists/italian/italian-expressions.txt lists/italian/italian-words.txt -o lists/italian/italian-merged.txt
 ```
 
 - Positional arguments: one or more input files to merge.
@@ -26,7 +34,7 @@ characters. Overwrites the input file in place by default, or writes to
 a separate file if `-o` is given.
 
 ```sh
-python3 sanitize_list.py english/english-merged.txt
+python3 scripts/sanitize_list.py lists/english/english-merged.txt
 ```
 
 - Positional argument: the word list file to sanitize.
@@ -40,7 +48,7 @@ than 32 characters. Exits with a non-zero status and prints the
 offending entries if any issues are found.
 
 ```sh
-python3 validate_lists.py italian/italian-merged.txt
+python3 scripts/validate_lists.py lists/italian/italian-merged.txt
 ```
 
 This check also runs automatically as a GitHub Actions workflow
