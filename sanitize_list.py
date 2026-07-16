@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
-"""Sanitize a comma-separated word list: remove duplicate entries and entries containing an apostrophe."""
+"""Sanitize a comma-separated word list: remove duplicate entries, entries containing an apostrophe, and entries longer than 32 characters."""
 
 import argparse
+
+MAX_LENGTH = 32
 
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("input_file", help="Word list file to sanitize")
@@ -21,6 +23,8 @@ for word in content.split(","):
     if not word:
         continue
     if "'" in word:
+        continue
+    if len(word) > MAX_LENGTH:
         continue
     if word not in seen:
         seen.add(word)
