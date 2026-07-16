@@ -19,15 +19,16 @@ python3 merge_words.py italian/italian.txt italian/italian-2.txt -o italian/ital
 - Positional arguments: one or more input files to merge.
 - `-o` / `--output`: the file to write the merged, deduplicated list to.
 
-### `split_words.py`
+### `validate_lists.py`
 
-Splits a comma-separated word list into single-word and multi-word
-(phrase) entries, writing each group to its own output file.
+Validates one or more comma-separated word list files, checking for
+duplicate entries and entries containing an apostrophe. Exits with a
+non-zero status and prints the offending entries if any issues are found.
 
 ```sh
-python3 split_words.py italian/italian-merged.txt -s italian/italian-words.txt -m italian/italian-expressions.txt
+python3 validate_lists.py italian/italian-merged.txt
 ```
 
-- Positional argument: the input file to split.
-- `-s` / `--single-output`: output file for single-word entries.
-- `-m` / `--multi-output`: output file for multi-word entries.
+This check also runs automatically as a GitHub Actions workflow
+(`.github/workflows/validate-word-lists.yml`) against any `.txt` files
+changed in a pull request.
