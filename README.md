@@ -1,8 +1,7 @@
 # skribbl.io Words
 
 This repository collects word lists for use as custom word packs in the
-[skribbl.io](https://skribbl.io) drawing game, organized by language
-(e.g. `italian/`).
+[skribbl.io](https://skribbl.io) drawing game, organized by language.
 
 ## Scripts
 
