@@ -113,7 +113,51 @@ header a {
 }
 
 .actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
   margin: 1.5rem 0;
+}
+
+.limit-controls {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.limit-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.limit-controls input[type="number"] {
+  width: 100px;
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.limit-controls input:disabled,
+.limit-controls select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.limit-controls select {
+  padding: 0.4rem 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 0.9rem;
+  background: canvas;
+  color: inherit;
 }
 
 button {

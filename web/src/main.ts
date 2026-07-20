@@ -20,6 +20,17 @@ app.innerHTML = `
     </div>
     <div id="categories" class="categories"></div>
     <div class="actions">
+      <div class="limit-controls">
+        <label class="limit-toggle">
+          <input id="limit-enabled" type="checkbox" />
+          Limit output to
+        </label>
+        <input id="limit-value" type="number" min="1" placeholder="Amount" disabled />
+        <select id="limit-unit" aria-label="Limit unit" disabled>
+          <option value="characters">characters</option>
+          <option value="entries">entries</option>
+        </select>
+      </div>
       <button id="merge-btn" type="button" disabled>Merge selected lists</button>
     </div>
     <section id="result" class="result" hidden>
@@ -58,6 +69,9 @@ const previewTitle = document.querySelector<HTMLHeadingElement>("#preview-title"
 const previewMeta = document.querySelector<HTMLParagraphElement>("#preview-meta")!;
 const previewBody = document.querySelector<HTMLDivElement>("#preview-body")!;
 const previewClose = document.querySelector<HTMLButtonElement>("#preview-close")!;
+const limitEnabledCheckbox = document.querySelector<HTMLInputElement>("#limit-enabled")!;
+const limitValueInput = document.querySelector<HTMLInputElement>("#limit-value")!;
+const limitUnitSelect = document.querySelector<HTMLSelectElement>("#limit-unit")!;
 
 const selected = new Set<string>();
 let lists: WordList[] = [];
@@ -174,14 +188,27 @@ searchInput.addEventListener("input", () => {
   renderCategories(searchInput.value);
 });
 
-function showResult(entries: string[], removedForLength: number) {
+limitEnabledCheckbox.addEventListener("change", () => {
+  limitValueInput.disabled = !limitEnabledCheckbox.checked;
+  limitUnitSelect.disabled = !limitEnabledCheckbox.checked;
+});
+
+function showResult(entries: string[], removedForEntryLimit: number, removedForLength: number) {
   resultSection.hidden = false;
-  let countText = `${entries.length} unique word${entries.length === 1 ? "" : "s"}`;
+  const joined = entries.join(",");
+  let countText = `${entries.length} unique word${entries.length === 1 ? "" : "s"} \u2022 ${joined.length.toLocaleString()} character${joined.length === 1 ? "" : "s"}`;
+  const notes: string[] = [];
+  if (removedForEntryLimit > 0) {
+    notes.push(`dropped ${removedForEntryLimit} at random to fit your entry limit`);
+  }
   if (removedForLength > 0) {
-    countText += ` (dropped ${removedForLength} at random to stay under skribbl.io's 20,000-character limit)`;
+    notes.push(`dropped ${removedForLength} at random to fit your character limit`);
+  }
+  if (notes.length > 0) {
+    countText += ` (${notes.join("; ")})`;
   }
   resultCountEl.textContent = countText;
-  resultTextEl.value = entries.join(",");
+  resultTextEl.value = joined;
   copyFeedback.textContent = "";
   resultSection.scrollIntoView({ behavior: "smooth", block: "start" });
 }
@@ -192,8 +219,22 @@ mergeBtn.addEventListener("click", async () => {
   try {
     const selectedLists = lists.filter((list) => selected.has(list.id));
     const entryLists = await Promise.all(selectedLists.map((list) => loadListEntries(list)));
-    const { entries, removedForLength } = mergeLists(entryLists);
-    showResult(entries, removedForLength);
+
+    const options: { maxEntries?: number; maxLength?: number } = {};
+    if (limitEnabledCheckbox.checked) {
+      const rawLimit = limitValueInput.value.trim();
+      const limitValue = rawLimit ? Number(rawLimit) : undefined;
+      if (limitValue !== undefined && Number.isFinite(limitValue) && limitValue > 0) {
+        if (limitUnitSelect.value === "entries") {
+          options.maxEntries = Math.floor(limitValue);
+        } else {
+          options.maxLength = Math.floor(limitValue);
+        }
+      }
+    }
+
+    const { entries, removedForEntryLimit, removedForLength } = mergeLists(entryLists, options);
+    showResult(entries, removedForEntryLimit, removedForLength);
   } catch (error) {
     console.error(error);
     alert("Something went wrong merging the selected lists. Please try again.");
