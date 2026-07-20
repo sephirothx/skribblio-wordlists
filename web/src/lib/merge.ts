@@ -5,10 +5,6 @@
 
 export const MAX_LENGTH = 32;
 
-// skribbl.io's custom word list input has a hard cap of 20000 characters
-// (including the comma separators).
-export const MAX_TOTAL_LENGTH = 20000;
-
 /**
  * Parses a raw comma-separated word list file's contents into a list of
  * trimmed, non-empty entries.
@@ -23,18 +19,29 @@ export function parseEntries(rawContent: string): string[] {
 export interface MergeResult {
   /** The final, deduplicated, sanitized, and length-capped list of entries. */
   entries: string[];
-  /** How many entries were randomly dropped to fit under MAX_TOTAL_LENGTH. */
+  /** How many entries were randomly dropped to fit the requested entry count. */
+  removedForEntryLimit: number;
+  /** How many entries were randomly dropped to fit under the character limit. */
   removedForLength: number;
+}
+
+export interface MergeOptions {
+  /** Cap the number of entries in the result. Unset means no entry cap. */
+  maxEntries?: number;
+  /** Cap the comma-joined result to this many characters. Unset means no character cap. */
+  maxLength?: number;
 }
 
 /**
  * Merges multiple lists of entries into a single deduplicated, sanitized
  * list. Entries are kept in the order the lists are given (and first-seen
  * order within each list), so the result is deterministic regardless of
- * selection order. If the comma-joined result would exceed
- * MAX_TOTAL_LENGTH characters, random entries are dropped until it fits.
+ * selection order. Neither limit is applied unless explicitly requested
+ * via `options`. If `maxEntries` is given and exceeded, random entries
+ * are dropped to fit. If `maxLength` is given, the comma-joined result is
+ * then capped to that many characters, again by dropping random entries.
  */
-export function mergeLists(entryLists: string[][]): MergeResult {
+export function mergeLists(entryLists: string[][], options: MergeOptions = {}): MergeResult {
   const seen = new Set<string>();
   const result: string[] = [];
 
@@ -48,8 +55,33 @@ export function mergeLists(entryLists: string[][]): MergeResult {
     }
   }
 
-  const removedForLength = trimToLength(result, MAX_TOTAL_LENGTH);
-  return { entries: result, removedForLength };
+  let removedForEntryLimit = 0;
+  if (options.maxEntries !== undefined && result.length > options.maxEntries) {
+    removedForEntryLimit = trimToCount(result, Math.max(0, options.maxEntries));
+  }
+
+  let removedForLength = 0;
+  if (options.maxLength !== undefined) {
+    removedForLength = trimToLength(result, options.maxLength);
+  }
+
+  return { entries: result, removedForEntryLimit, removedForLength };
+}
+
+/**
+ * Removes random entries from `words` (in place) until at most `maxCount`
+ * remain. Returns the number of entries removed.
+ */
+function trimToCount(words: string[], maxCount: number): number {
+  let removed = 0;
+
+  while (words.length > maxCount) {
+    const index = Math.floor(Math.random() * words.length);
+    words.splice(index, 1);
+    removed++;
+  }
+
+  return removed;
 }
 
 /**
@@ -70,4 +102,5 @@ function trimToLength(words: string[], maxLength: number): number {
 
   return removed;
 }
+
 
